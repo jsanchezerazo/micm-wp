@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MICM · Asistente WhatsApp con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1B2A4A; --blue:#1565C0; --blueM:#42A5F5; --blueL:#90CAF9; --blueXL:#E3F2FD;
+  --offW:#F8FAFD; --gray1:#EEF2F7; --gray2:#CFD8DC; --textS:#546E7A;
+  --red:#E53935; --redL:#FFEBEE; --amber:#FF6F00; --amberL:#FFF8E1;
+  --green:#2E7D32; --greenL:#E8F5E9;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Montserrat',sans-serif;background:var(--offW);color:var(--navy);font-size:12px;}
+
+/* HEADER JSE */
+.page-header { background: var(--navy); padding: 0; position:sticky;top:0;z-index:100; }
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2rem; flex-wrap: wrap; gap: 12px;
+}
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.header-logo {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--blueM); display: flex; align-items: center;
+  justify-content: center; font-size: 14px; font-weight: 700; color: #fff;
+}
+.header-title { font-size: 14px; font-weight: 600; color: #fff; }
+.header-sub   { font-size: 10px; color: var(--blueL); margin-top: 1px; }
+.header-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.hpill { font-size: 10px; padding: 3px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.hpill-r { background: var(--redL);   color: #B71C1C; }
+.hpill-a { background: var(--amberL); color: #E65100; }
+.hpill-b { background: var(--blueXL); color: var(--blue); }
+.hpill-g { background: var(--greenL); color: #1B5E20; }
+.header-stripe { height: 4px; background: var(--blueM); }
+
+/* NAV */
+.jse-nav{
+  background:#fff;
+  border-bottom:0.5px solid var(--gray2);
+  display:flex;overflow-x:auto;
+  padding:0 32px;gap:0;
+}
+.jse-nav a{
+  font-size:11px;font-weight:600;color:var(--textS);
+  padding:13px 16px;border-bottom:2px solid transparent;
+  white-space:nowrap;text-decoration:none;transition:all 0.15s;
+}
+.jse-nav a:hover,.jse-nav a.active{color:var(--blue);border-bottom-color:var(--blue);}
+
+/* MAIN */
+.jse-main{max-width:1080px;margin:0 auto;padding:28px 32px 80px;}
+
+/* HERO BANNER */
+.jse-hero{
+  background:var(--navy);border-radius:14px;
+  display:grid;grid-template-columns:1fr 300px;
+  overflow:hidden;margin-bottom:24px;
+}
+.jse-hero-left{padding:32px 36px;}
+.jse-hero-tag{font-size:10px;font-weight:600;color:var(--blueM);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.jse-hero-title{font-size:24px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:12px;letter-spacing:-0.01em;}
+.jse-hero-title span{color:var(--blueM);}
+.jse-hero-body{font-size:12px;color:var(--blueL);line-height:1.8;max-width:480px;}
+.jse-hero-right{
+  background:rgba(0,0,0,0.25);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 24px;gap:16px;
+}
+.jse-kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;}
+.jse-kpi-mini{background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 12px;text-align:center;}
+.jse-kpi-mini-val{font-size:22px;font-weight:700;color:var(--blueM);line-height:1;margin-bottom:4px;}
+.jse-kpi-mini-lbl{font-size:10px;color:var(--blueL);font-weight:500;line-height:1.4;}
+
+/* KPI ROW */
+.jse-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+.jse-kpi{
+  background:#fff;border:0.5px solid var(--gray2);
+  border-radius:12px;padding:16px;
+}
+.jse-kpi-val{font-size:22px;font-weight:700;color:var(--navy);line-height:1;margin-bottom:4px;}
+.jse-kpi-lbl{font-size:10px;font-weight:600;color:var(--textS);line-height:1.4;}
+.jse-kpi-delta{font-size:10px;font-weight:600;margin-top:5px;}
+.up{color:var(--green);} .warn{color:var(--amber);}
+
+/* SECTION LABEL */
+.jse-section-label{font-size:10px;font-weight:600;color:var(--textS);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:10px;margin-top:28px;}
+
+/* CARDS */
+.jse-card{background:#fff;border:0.5px solid var(--gray2);border-radius:14px;padding:20px 22px;box-shadow:0 1px 4px rgba(27,42,74,0.05);}
+.jse-card-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+
+/* MÓDULOS */
+.jse-mods{display:flex;flex-direction:column;gap:0;border:0.5px solid var(--gray2);border-radius:14px;overflow:hidden;}
+.jse-mod{display:grid;grid-template-columns:72px 1fr;background:#fff;border-bottom:0.5px solid var(--gray1);}
+.jse-mod:last-child{border-bottom:none;}
+.jse-mod:hover{background:var(--offW);}
+.jse-mod-num{
+  background:var(--offW);border-right:0.5px solid var(--gray1);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:22px;font-size:10px;font-weight:600;color:var(--gray2);
+}
+.jse-mod-body{padding:22px 24px;}
+.jse-mod-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.jse-mod-desc{font-size:12px;color:var(--textS);line-height:1.75;margin-bottom:14px;max-width:600px;}
+.jse-feats{display:flex;flex-wrap:wrap;gap:6px;}
+.jse-feat{font-size:10px;font-weight:600;color:var(--navy);background:var(--gray1);border-radius:24px;padding:4px 12px;}
+
+/* PILLS */
+.pill{display:inline-block;font-size:10px;font-weight:600;padding:3px 10px;border-radius:24px;}
+.pill-blue{background:var(--blueXL);color:var(--blue);}
+.pill-green{background:var(--greenL);color:var(--green);}
+.pill-amber{background:var(--amberL);color:var(--amber);}
+
+/* PHONE MOCKUP */
+.jse-phone-wrap{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:start;}
+.jse-phone{background:var(--navy);border-radius:36px;padding:12px;border:0.5px solid var(--gray2);}
+.jse-phone-screen{background:#ECE5DD;border-radius:26px;overflow:hidden;}
+.wa-bar{background:#075E54;padding:10px 13px;display:flex;align-items:center;gap:9px;}
+.wa-av{width:34px;height:34px;border-radius:50%;background:#128C7E;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.wa-nm{font-size:11px;font-weight:600;color:#fff;}
+.wa-st{font-size:9px;color:rgba(255,255,255,0.65);}
+.wa-msgs{padding:10px 8px;display:flex;flex-direction:column;gap:6px;min-height:300px;}
+.bbl{font-size:10px;padding:7px 10px;border-radius:9px;max-width:90%;line-height:1.55;color:#111;}
+.bi{background:#fff;align-self:flex-start;border-radius:2px 9px 9px 9px;}
+.bo{background:#DCF8C6;align-self:flex-end;border-radius:9px 2px 9px 9px;}
+.bt{font-size:8px;color:#aaa;text-align:right;margin-top:2px;}
+.wa-opts{display:flex;flex-direction:column;gap:2px;margin-top:4px;}
+.wa-opt{background:#fff;border-radius:6px;padding:5px 8px;font-size:9px;color:#075E54;font-weight:600;}
+
+/* BROADCAST */
+.jse-broadcast{background:var(--navy);border-radius:14px;padding:24px 28px;}
+.jse-bc-label{font-size:9px;font-weight:600;color:var(--blueM);text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:6px;margin-bottom:14px;}
+.jse-bc-dot{width:6px;height:6px;border-radius:50%;background:#7C4DFF;}
+.jse-bc-text{font-size:12px;color:var(--blueL);line-height:1.85;}
+.jse-bc-text strong{color:#fff;font-weight:600;}
+.jse-bc-footer{margin-top:16px;padding-top:14px;border-top:0.5px solid rgba(255,255,255,0.08);font-size:10px;color:var(--blueL);display:flex;justify-content:space-between;}
+.jse-bc-stats{display:flex;gap:24px;margin-top:16px;}
+.jse-bc-stat-val{font-size:18px;font-weight:700;color:#fff;line-height:1;}
+.jse-bc-stat-lbl{font-size:10px;color:var(--blueL);margin-top:3px;}
+
+/* PIPELINE */
+.jse-pipeline{display:grid;grid-template-columns:repeat(5,1fr);border:0.5px solid var(--gray2);border-radius:14px;overflow:hidden;}
+.jse-pipe{padding:20px 16px;background:#fff;border-right:0.5px solid var(--gray1);position:relative;}
+.jse-pipe:last-child{border-right:none;}
+.jse-pipe::after{content:'→';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--blueM);font-weight:700;z-index:2;}
+.jse-pipe:last-child::after{display:none;}
+.jse-pipe-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.jse-pipe-ico svg{width:18px;height:18px;fill:#fff;}
+.jse-pipe-lbl{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:4px;}
+.jse-pipe-sub{font-size:10px;color:var(--textS);line-height:1.6;}
+
+/* BSP */
+.jse-bsp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.jse-bsp{background:#fff;border:0.5px solid var(--gray2);border-radius:14px;padding:18px 20px;box-shadow:0 1px 4px rgba(27,42,74,0.05);}
+.jse-bsp.rec{border-color:var(--blueM);border-width:1.5px;}
+.jse-bsp-name{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:3px;}
+.jse-bsp-row{font-size:11px;color:var(--textS);padding:6px 0;border-top:0.5px solid var(--gray1);line-height:1.5;}
+.jse-bsp-row strong{color:var(--navy);font-weight:600;}
+
+/* FASES */
+.jse-fases{display:grid;grid-template-columns:repeat(4,1fr);border:0.5px solid var(--gray2);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.jse-fase{padding:22px 18px;background:#fff;border-right:0.5px solid var(--gray1);}
+.jse-fase:last-child{border-right:none;}
+.jse-fase-periodo{font-size:9px;font-weight:600;color:var(--textS);text-transform:uppercase;letter-spacing:0.07em;}
+.jse-fase-num{font-size:28px;font-weight:700;color:var(--navy);line-height:1;margin:3px 0 1px;letter-spacing:-0.02em;}
+.jse-fase-unit{font-size:10px;color:var(--textS);margin-bottom:14px;}
+.jse-fase-title{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:10px;}
+.jse-fase-li{font-size:10px;color:var(--textS);padding:5px 0 5px 12px;border-top:0.5px solid var(--gray1);position:relative;line-height:1.5;}
+.jse-fase-li:first-of-type{border-top:none;}
+.jse-fase-li::before{content:'·';position:absolute;left:3px;color:var(--blueM);font-weight:700;font-size:14px;top:3px;}
+
+/* ALERTA */
+.jse-alert{border-radius:12px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.jse-alert-info{background:var(--blueXL);border:0.5px solid var(--blueL);}
+.jse-alert-warn{background:var(--amberL);border:0.5px solid #FFD54F;}
+.jse-alert-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.jse-alert-text{font-size:11px;color:var(--navy);line-height:1.75;}
+.jse-alert-text strong{font-weight:700;}
+
+/* CIERRE */
+.jse-cierre{
+  background:var(--navy);border-radius:14px;
+  display:grid;grid-template-columns:1fr 1fr;gap:48px;
+  padding:36px 40px;margin-top:24px;
+}
+.jse-cierre-title{font-size:20px;font-weight:700;color:#fff;line-height:1.25;margin-bottom:12px;}
+.jse-cierre-title em{font-style:normal;color:var(--blueM);}
+.jse-cierre-body{font-size:12px;color:var(--blueL);line-height:1.8;}
+.jse-ci{padding:16px 0;border-top:0.5px solid rgba(255,255,255,0.08);display:flex;gap:14px;}
+.jse-ci:first-child{border-top:none;padding-top:0;}
+.jse-ci-n{font-size:18px;font-weight:700;color:var(--blueM);line-height:1;flex-shrink:0;width:26px;}
+.jse-ci-title{font-size:11px;font-weight:600;color:#fff;margin-bottom:3px;}
+.jse-ci-body{font-size:11px;color:var(--blueL);line-height:1.65;}
+
+/* FOOTER JSE */
+.page-footer {
+  background: var(--navy); color: var(--blueL);
+  text-align: center; font-size: 10px; padding: 14px;
+  margin-top: 2rem; letter-spacing: 0.03em;
+}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+
+@media(max-width:768px){
+  .header-top{padding:1rem;flex-direction:column;align-items:flex-start;}
+  .jse-logo{height:30px !important;}
+  .header-pills{gap:4px;}
+  .hpill{font-size:9px;padding:2px 8px;}
+  .jse-hero,.jse-cierre{grid-template-columns:1fr;}
+  .jse-hero-right{display:none;}
+  .jse-kpi-strip,.jse-bsp-grid,.jse-fases,.jse-pipeline{grid-template-columns:1fr;}
+  .jse-phone-wrap{grid-template-columns:1fr;}
+  .jse-pipe::after{display:none;}
+  .jse-main{padding:20px 16px 60px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER JSE -->
+<header class="page-header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">RD</div>
+      <div>
+        <div class="header-title">MICM · Asistente WhatsApp con IA</div>
+        <div class="header-sub">Ministerio de Industria, Comercio y Mipymes · Min. Eduardo "Yayo" Sanz Lovatón</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px">
+      <img src="data:image/png;base64,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"
+           alt="Jorge Sánchez Erazo" class="jse-logo"
+           style="height:38px;mix-blend-mode:screen;opacity:0.95">
+      <div class="header-pills">
+        <span class="hpill hpill-b">Propuesta estratégica</span>
+        <span class="hpill hpill-g">WhatsApp + IA</span>
+        <span class="hpill hpill-a">Abril 2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="header-stripe"></div>
+</header>
+
+<!-- NAV -->
+<nav class="jse-nav">
+  <a href="#contexto" class="active">Contexto</a>
+  <a href="#modulos">Módulos</a>
+  <a href="#demo">Demo</a>
+  <a href="#pipeline">Arquitectura</a>
+  <a href="#bsp">BSP</a>
+  <a href="#fases">Fases</a>
+</nav>
+
+<div class="jse-main">
+
+  <!-- HERO -->
+  <div class="jse-hero">
+    <div class="jse-hero-left">
+      <div class="jse-hero-tag">Comunicación gubernamental · Inteligencia artificial</div>
+      <div class="jse-hero-title">El MICM en el canal<br>donde <span>el ciudadano ya está</span></div>
+      <div class="jse-hero-body">WhatsApp tiene penetración del ~90% en República Dominicana. Esta propuesta convierte al MICM en el primer ministerio dominicano con asistente oficial de IA en mensajería — sin que el ciudadano tenga que descargar nada nuevo.</div>
+    </div>
+    <div class="jse-hero-right">
+      <div class="jse-kpi-row">
+        <div class="jse-kpi-mini">
+          <div class="jse-kpi-mini-val">~90%</div>
+          <div class="jse-kpi-mini-lbl">Penetración WhatsApp en RD</div>
+        </div>
+        <div class="jse-kpi-mini">
+          <div class="jse-kpi-mini-val">0</div>
+          <div class="jse-kpi-mini-lbl">Apps nuevas para el ciudadano</div>
+        </div>
+        <div class="jse-kpi-mini">
+          <div class="jse-kpi-mini-val">24/7</div>
+          <div class="jse-kpi-mini-lbl">Disponibilidad del asistente</div>
+        </div>
+        <div class="jse-kpi-mini">
+          <div class="jse-kpi-mini-val">1ro</div>
+          <div class="jse-kpi-mini-lbl">Ministerio dominicano con este modelo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTEXTO -->
+  <div id="contexto">
+    <div class="jse-section-label">Por qué ahora</div>
+    <div class="jse-kpi-strip">
+      <div class="jse-kpi">
+        <div class="jse-kpi-val">3 m</div>
+        <div class="jse-kpi-lbl">En el cargo — ventana de posicionamiento abierta</div>
+        <div class="jse-kpi-delta warn">Timing crítico</div>
+      </div>
+      <div class="jse-kpi">
+        <div class="jse-kpi-val">98%</div>
+        <div class="jse-kpi-lbl">Del tejido empresarial RD son Mipymes — audiencia natural</div>
+        <div class="jse-kpi-delta up">Alcance masivo</div>
+      </div>
+      <div class="jse-kpi">
+        <div class="jse-kpi-val">200K</div>
+        <div class="jse-kpi-lbl">Empleos en zonas francas — máximo histórico 2025</div>
+        <div class="jse-kpi-delta up">Récord a comunicar</div>
+      </div>
+      <div class="jse-kpi">
+        <div class="jse-kpi-val">Semanal</div>
+        <div class="jse-kpi-lbl">El MICM ya publica datos de combustibles — activo dormido</div>
+        <div class="jse-kpi-delta up">Dato listo para usar</div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-bottom:14px;">
+      <div class="jse-card">
+        <div class="jse-card-title">El ciudadano no descarga apps <span class="pill pill-blue">Problema resuelto</span></div>
+        <div style="font-size:11px;color:var(--textS);line-height:1.75;">Las apps gubernamentales tienen tasas de adopción menores al 5% en LATAM. WhatsApp ya está instalado, con notificaciones activas y confianza establecida. No hay que convencer a nadie de usarlo.</div>
+      </div>
+      <div class="jse-card">
+        <div class="jse-card-title">El MICM ya produce los datos <span class="pill pill-green">Activo existente</span></div>
+        <div style="font-size:11px;color:var(--textS);line-height:1.75;">Precios de combustibles semanales, balances de exportaciones, métricas Mipymes — toda esa información existe en el ministerio pero nadie la ve. WhatsApp la distribuye masivamente con cero esfuerzo adicional.</div>
+      </div>
+    </div>
+
+    <div class="jse-alert jse-alert-info">
+      <div class="jse-alert-icon">🌎</div>
+      <div class="jse-alert-text"><strong>Referencia internacional:</strong> Colombia (ICBF), Chile (ServiEstado) e India (MyGov) operan asistentes gubernamentales en WhatsApp con millones de usuarios activos. En LATAM, Colombia es el caso más maduro — el ICBF atiende consultas de protección a la infancia directamente desde WhatsApp Business API desde 2022.</div>
+    </div>
+  </div>
+
+  <!-- MÓDULOS -->
+  <div id="modulos">
+    <div class="jse-section-label">Lo que se construye</div>
+    <div class="jse-mods">
+      <div class="jse-mod">
+        <div class="jse-mod-num">01</div>
+        <div class="jse-mod-body">
+          <div class="jse-mod-title">Asistente ciudadano con IA <span class="pill pill-blue" style="margin-left:8px;">Fase 1</span></div>
+          <p class="jse-mod-desc">Bot entrenado con la normativa vigente del MICM — responde en lenguaje natural las 24 horas. El ciudadano escribe como le escribe a un amigo, el sistema entiende y responde con precisión. Cuando la IA no puede resolver, transfiere a un asesor humano del ministerio sin cambiar de aplicación.</p>
+          <div class="jse-feats">
+            <span class="jse-feat">Ley 187-17 Mipymes</span>
+            <span class="jse-feat">Precios de combustibles</span>
+            <span class="jse-feat">Trámites y requisitos</span>
+            <span class="jse-feat">Zonas francas</span>
+            <span class="jse-feat">Escalación a asesor humano</span>
+            <span class="jse-feat">Respuesta en segundos</span>
+          </div>
+        </div>
+      </div>
+      <div class="jse-mod">
+        <div class="jse-mod-num">02</div>
+        <div class="jse-mod-body">
+          <div class="jse-mod-title">Broadcast semanal generado por IA <span class="pill pill-blue" style="margin-left:8px;">Fase 1</span></div>
+          <p class="jse-mod-desc">Cada viernes, el sistema toma los datos de la semana — precios de combustibles, exportaciones, novedades Mipymes — y genera el mensaje automáticamente. El equipo del ministerio lo revisa en dos minutos, aprueba, y llega a miles de dominicanos simultáneamente.</p>
+          <div class="jse-feats">
+            <span class="jse-feat">Resumen económico semanal</span>
+            <span class="jse-feat">Precios combustibles viernes</span>
+            <span class="jse-feat">Generado por Claude API</span>
+            <span class="jse-feat">Aprobación humana antes de enviar</span>
+            <span class="jse-feat">Envío masivo simultáneo</span>
+          </div>
+        </div>
+      </div>
+      <div class="jse-mod">
+        <div class="jse-mod-num">03</div>
+        <div class="jse-mod-body">
+          <div class="jse-mod-title">Guía de trámites interactiva <span class="pill pill-green" style="margin-left:8px;">Fase 2</span></div>
+          <p class="jse-mod-desc">Flujos conversacionales guiados para los trámites más frecuentes del ministerio. El ciudadano avanza paso a paso respondiendo preguntas simples — el sistema lo orienta, le pide los documentos correctos y le confirma los pasos. Sin visitar oficinas para la orientación inicial.</p>
+          <div class="jse-feats">
+            <span class="jse-feat">Registro Mipyme paso a paso</span>
+            <span class="jse-feat">Solicitud de certificados</span>
+            <span class="jse-feat">Orientación para importadores</span>
+            <span class="jse-feat">Confirmación por WhatsApp</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO -->
+  <div id="demo">
+    <div class="jse-section-label">Experiencia del ciudadano</div>
+    <div class="jse-phone-wrap">
+      <div class="jse-phone">
+        <div class="jse-phone-screen">
+          <div class="wa-bar">
+            <div class="wa-av">M</div>
+            <div>
+              <div class="wa-nm">MICM Oficial ✓</div>
+              <div class="wa-st">Ministerio de Industria y Comercio</div>
+            </div>
+          </div>
+          <div class="wa-msgs">
+            <div class="bbl bi">
+              Hola. Soy el asistente del MICM. ¿En qué te ayudo?
+              <div class="wa-opts">
+                <div class="wa-opt">1 · Precio combustibles</div>
+                <div class="wa-opt">2 · Registrar Mipyme</div>
+                <div class="wa-opt">3 · Zonas francas</div>
+                <div class="wa-opt">4 · Otro trámite</div>
+              </div>
+              <div class="bt">9:01 ✓✓</div>
+            </div>
+            <div class="bbl bo">¿Cuánto cuesta el GLP esta semana?<div class="bt">9:02 ✓✓</div></div>
+            <div class="bbl bi">El GLP está en <strong>RD$132.60/galón</strong> esta semana. El subsidio del gobierno se mantiene activo. Los precios se actualizan cada viernes.<div class="bt">9:02 ✓✓</div></div>
+            <div class="bbl bo">¿Y para registrar mi empresa?<div class="bt">9:03 ✓✓</div></div>
+            <div class="bbl bi">Necesitas RNC activo y documentos de constitución. El proceso en micm.gob.do es gratuito y tarda 3–5 días hábiles. ¿Te explico cada paso?<div class="bt">9:03 ✓✓</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="jse-section-label" style="margin-top:0">El broadcast semanal</div>
+        <div class="jse-broadcast" style="margin-bottom:14px;">
+          <div class="jse-bc-label"><span class="jse-bc-dot"></span>Mensaje generado por IA · Viernes 18 abr 2026 · 17:58 · Pendiente aprobación</div>
+          <div class="jse-bc-text">
+            📊 <strong>Resumen económico MICM · Semana 16</strong><br><br>
+            ⛽ <strong>Combustibles:</strong> Los precios se mantienen sin variación por cuarta semana consecutiva. El GLP continúa en RD$132.60/galón con subsidio activo.<br><br>
+            🏭 <strong>Zonas francas:</strong> 3 nuevos contratos en el Cibao — 840 empleos directos proyectados. Máximo histórico: +200,000 empleos directos.<br><br>
+            💼 <strong>Mipymes:</strong> 214 nuevas empresas certificadas. Promipyme acepta solicitudes hasta el 30 de abril.<br><br>
+            Escribe <strong>MENU</strong> para ver todos los servicios del MICM.
+          </div>
+          <div class="jse-bc-footer">
+            <span>Generado automáticamente · Requiere aprobación</span>
+            <span>48,200 suscriptores</span>
+          </div>
+          <div class="jse-bc-stats">
+            <div><div class="jse-bc-stat-val">91%</div><div class="jse-bc-stat-lbl">Tasa de entrega</div></div>
+            <div><div class="jse-bc-stat-val">38%</div><div class="jse-bc-stat-lbl">Tasa de apertura</div></div>
+            <div><div class="jse-bc-stat-val">2,100</div><div class="jse-bc-stat-lbl">Respuestas recibidas</div></div>
+          </div>
+        </div>
+        <div class="jse-alert jse-alert-info" style="margin-bottom:0">
+          <div class="jse-alert-icon">💡</div>
+          <div class="jse-alert-text">La IA genera el borrador completo con los datos de la semana. El equipo del ministerio revisa en dos minutos y decide si publica — sin redactar desde cero, sin esfuerzo adicional.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIPELINE -->
+  <div id="pipeline">
+    <div class="jse-section-label">Arquitectura del sistema</div>
+    <div class="jse-pipeline" style="margin-bottom:16px;">
+      <div class="jse-pipe">
+        <div class="jse-pipe-ico" style="background:var(--navy)">
+          <svg viewBox="0 0 24 24"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        </div>
+        <div class="jse-pipe-lbl">Datos MICM</div>
+        <div class="jse-pipe-sub">Formulario interno semanal con precios, exportaciones y novedades</div>
+      </div>
+      <div class="jse-pipe">
+        <div class="jse-pipe-ico" style="background:#5E35B1">
+          <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7H3a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13c-.83 0-1.5.67-1.5 1.5S6.67 16 7.5 16s1.5-.67 1.5-1.5S8.33 13 7.5 13m9 0c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5M2 19h20v2H2v-2z"/></svg>
+        </div>
+        <div class="jse-pipe-lbl">Claude API</div>
+        <div class="jse-pipe-sub">Genera mensajes y responde consultas en tiempo real</div>
+      </div>
+      <div class="jse-pipe">
+        <div class="jse-pipe-ico" style="background:var(--blue)">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <div class="jse-pipe-lbl">Aprobación</div>
+        <div class="jse-pipe-sub">Comunicaciones revisa en 2 min y aprueba antes de publicar</div>
+      </div>
+      <div class="jse-pipe">
+        <div class="jse-pipe-ico" style="background:#1B5E20">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.927l6.204-1.543C7.905 23.43 9.906 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-1.927 0-3.716-.557-5.228-1.515l-.374-.222-3.684.916.985-3.593-.244-.371C2.641 15.387 2.182 13.744 2.182 12c0-5.414 4.404-9.818 9.818-9.818 5.414 0 9.818 4.404 9.818 9.818 0 5.414-4.404 9.818-9.818 9.818z"/></svg>
+        </div>
+        <div class="jse-pipe-lbl">WhatsApp API</div>
+        <div class="jse-pipe-sub">Envío masivo y recepción de consultas ciudadanas</div>
+      </div>
+      <div class="jse-pipe">
+        <div class="jse-pipe-ico" style="background:var(--textS)">
+          <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        </div>
+        <div class="jse-pipe-lbl">Ciudadano</div>
+        <div class="jse-pipe-sub">Recibe y consulta desde el WhatsApp que ya tiene</div>
+      </div>
+    </div>
+    <div class="jse-alert jse-alert-warn">
+      <div class="jse-alert-icon">⚠️</div>
+      <div class="jse-alert-text"><strong>Sobre la aprobación de Meta:</strong> WhatsApp Business API requiere un proveedor intermediario (BSP) y aprobación de Meta — proceso de 2 a 4 semanas. Durante ese período se construye y prueba el sistema completo en Telegram como canal piloto. Cuando Meta aprueba, el lanzamiento en WhatsApp toma 48 horas.</div>
+    </div>
+  </div>
+
+  <!-- BSP -->
+  <div id="bsp">
+    <div class="jse-section-label">Proveedor intermediario (BSP)</div>
+    <div class="jse-bsp-grid">
+      <div class="jse-bsp rec">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div class="jse-bsp-name">360dialog</div>
+          <span class="pill pill-blue">Recomendado</span>
+        </div>
+        <div class="jse-bsp-row"><strong>Activación:</strong> 3–7 días hábiles</div>
+        <div class="jse-bsp-row"><strong>Costo:</strong> El más accesible del mercado</div>
+        <div class="jse-bsp-row"><strong>Soporte LATAM:</strong> Sí, en español</div>
+        <div class="jse-bsp-row"><strong>Ventaja:</strong> API directa, documentación sólida, ideal para volumen institucional</div>
+      </div>
+      <div class="jse-bsp">
+        <div class="jse-bsp-name" style="margin-bottom:4px;">Twilio</div>
+        <div class="jse-bsp-row"><strong>Activación:</strong> 7–14 días hábiles</div>
+        <div class="jse-bsp-row"><strong>Costo:</strong> Por mensaje enviado</div>
+        <div class="jse-bsp-row"><strong>Soporte LATAM:</strong> Sí</div>
+        <div class="jse-bsp-row"><strong>Ventaja:</strong> Mayor robustez, analytics avanzado, muy maduro</div>
+      </div>
+      <div class="jse-bsp">
+        <div class="jse-bsp-name" style="margin-bottom:4px;">Infobip</div>
+        <div class="jse-bsp-row"><strong>Activación:</strong> 14–30 días hábiles</div>
+        <div class="jse-bsp-row"><strong>Costo:</strong> Por volumen, negociable</div>
+        <div class="jse-bsp-row"><strong>Soporte LATAM:</strong> Sí, con account manager</div>
+        <div class="jse-bsp-row"><strong>Ventaja:</strong> SLA garantizado, soporte enterprise 24/7</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FASES -->
+  <div id="fases">
+    <div class="jse-section-label">Plan de implementación</div>
+    <div class="jse-fases">
+      <div class="jse-fase">
+        <div class="jse-fase-periodo">Semanas</div>
+        <div class="jse-fase-num">1–2</div>
+        <div class="jse-fase-unit">Configuración</div>
+        <div class="jse-fase-title">Infraestructura y piloto</div>
+        <div class="jse-fase-li">Registro WhatsApp Business y envío a Meta</div>
+        <div class="jse-fase-li">Contratación BSP (360dialog)</div>
+        <div class="jse-fase-li">Bot piloto en Telegram operativo</div>
+        <div class="jse-fase-li">Entrenamiento IA con documentos MICM</div>
+        <div class="jse-fase-li">Pipeline datos → Claude → canal</div>
+      </div>
+      <div class="jse-fase">
+        <div class="jse-fase-periodo">Semanas</div>
+        <div class="jse-fase-num">3–4</div>
+        <div class="jse-fase-unit">Pruebas</div>
+        <div class="jse-fase-title">Validación con equipo MICM</div>
+        <div class="jse-fase-li">Primer broadcast de prueba interno</div>
+        <div class="jse-fase-li">Ajuste de tono y respuestas IA</div>
+        <div class="jse-fase-li">Flujos de escalación a humano</div>
+        <div class="jse-fase-li">Panel de administración listo</div>
+        <div class="jse-fase-li">Aprobación Meta en proceso</div>
+      </div>
+      <div class="jse-fase">
+        <div class="jse-fase-periodo">Semanas</div>
+        <div class="jse-fase-num">5–6</div>
+        <div class="jse-fase-unit">Lanzamiento</div>
+        <div class="jse-fase-title">Go live en WhatsApp</div>
+        <div class="jse-fase-li">Migración Telegram → WhatsApp (48h)</div>
+        <div class="jse-fase-li">Número oficial verificado activo</div>
+        <div class="jse-fase-li">Campaña de difusión en redes MICM</div>
+        <div class="jse-fase-li">Primer broadcast masivo oficial</div>
+        <div class="jse-fase-li">Capacitación al equipo ministerial</div>
+      </div>
+      <div class="jse-fase">
+        <div class="jse-fase-periodo">Mes</div>
+        <div class="jse-fase-num">3+</div>
+        <div class="jse-fase-unit">Escala</div>
+        <div class="jse-fase-title">Módulos avanzados</div>
+        <div class="jse-fase-li">Guía trámites Mipyme completa</div>
+        <div class="jse-fase-li">Integración con dashboard web MICM</div>
+        <div class="jse-fase-li">Analytics y métricas de impacto</div>
+        <div class="jse-fase-li">Expansión a Instagram Direct</div>
+        <div class="jse-fase-li">Informe mensual al despacho</div>
+      </div>
+    </div>
+    <div class="jse-alert jse-alert-info">
+      <div class="jse-alert-icon">💡</div>
+      <div class="jse-alert-text"><strong>Estrategia mientras Meta aprueba:</strong> Se construye y prueba el sistema completo en Telegram como canal piloto — misma arquitectura de IA, mismo contenido. El ministerio muestra resultados internos desde la semana 2. Cuando WhatsApp está aprobado, la migración toma 48 horas.</div>
+    </div>
+  </div>
+
+  <!-- CIERRE -->
+  <div class="jse-cierre">
+    <div>
+      <div class="jse-cierre-title">El primer ministerio dominicano que <em>le escribe al ciudadano</em></div>
+      <div class="jse-cierre-body">Esta propuesta no es un chatbot de página web que nadie visita. Es presencia activa en el canal donde los dominicanos ya pasan su día — con información real, en tiempo real, supervisada por el equipo del ministerio. Un posicionamiento que el sector privado, la prensa y el ciudadano van a notar desde el primer broadcast.</div>
+    </div>
+    <div>
+      <div class="jse-ci">
+        <div class="jse-ci-n">01</div>
+        <div><div class="jse-ci-title">Sin fricción para el ciudadano</div><div class="jse-ci-body">Solo WhatsApp, que ya tiene instalado. Ninguna app, ningún registro, ninguna contraseña.</div></div>
+      </div>
+      <div class="jse-ci">
+        <div class="jse-ci-n">02</div>
+        <div><div class="jse-ci-title">Sin carga adicional para el equipo</div><div class="jse-ci-body">La IA genera, el equipo aprueba. Comunicación de calidad sin multiplicar recursos humanos.</div></div>
+      </div>
+      <div class="jse-ci">
+        <div class="jse-ci-n">03</div>
+        <div><div class="jse-ci-title">Diferenciador político real</div><div class="jse-ci-body">Ningún ministerio dominicano opera con este modelo. Visible desde el primer broadcast.</div></div>
+      </div>
+      <div class="jse-ci">
+        <div class="jse-ci-n">04</div>
+        <div><div class="jse-ci-title">Resultados desde la semana 2</div><div class="jse-ci-body">El piloto en Telegram muestra impacto real mientras Meta procesa la aprobación.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER JSE -->
+<footer class="page-footer">
+  Ministerio de Industria, Comercio y Mipymes · Asistente WhatsApp con IA · Elaborado por: Jorge Sánchez Erazo&nbsp;<a href="https://x.com/jsanchezerazo" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;color:var(--blueL);text-decoration:none;vertical-align:middle"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 1200 1227" fill="currentColor" style="flex-shrink:0"><path d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284zM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854z"/></svg>@jsanchezerazo</a>
+</footer>
+
+<script>
+const links = document.querySelectorAll('.jse-nav a');
+const sections = document.querySelectorAll('[id]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.jse-nav a[href="#${e.target.id}"]`);
+      if(a) a.classList.add('active');
+    }
+  });
+},{threshold:0.3,rootMargin:'-56px 0px -40% 0px'});
+sections.forEach(s => obs.observe(s));
+links.forEach(a => a.addEventListener('click', e => {
+  e.preventDefault();
+  document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
